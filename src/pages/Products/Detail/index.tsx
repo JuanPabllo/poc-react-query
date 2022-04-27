@@ -1,5 +1,6 @@
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { useQuery } from 'react-query';
 import { Product } from '../../../types/Product';
 
 type ProductDetailsProps = {
@@ -7,28 +8,31 @@ type ProductDetailsProps = {
   onBack: () => void;
 };
 
+const fetchProduct = (id: number) => {
+  return axios.get(`http://localhost:3333/products/${id}`).then((response) => {
+    return response.data;
+  });
+};
+
 function ProductDetail({ id, onBack }: ProductDetailsProps) {
-  const [product, setProduct] = useState<Product>();
-  const [isLoading, setIsLoading] = useState(false);
+  const { data: product, isLoading } = useQuery<Product>(
+    [`products${id}`],
+    () => fetchProduct(id)
+  );
 
-  const fetchProduct = (id: number) => {
-    return axios
-      .get(`http://localhost:3333/products/${id}`)
-      .then((response) => {
-        return response.data;
-      });
-  };
+  // const [product, setProduct] = useState<Product>();
+  // const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    setIsLoading(true);
-    fetchProduct(id)
-      .then((data) => {
-        setProduct(data);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, []);
+  // useEffect(() => {
+  //   setIsLoading(true);
+  //   fetchProduct(id)
+  //     .then((data) => {
+  //       setProduct(data);
+  //     })
+  //     .finally(() => {
+  //       setIsLoading(false);
+  //     });
+  // }, []);
 
   if (isLoading || !product) {
     return <div>Loading...</div>;

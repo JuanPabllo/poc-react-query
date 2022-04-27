@@ -1,31 +1,36 @@
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { useQuery } from 'react-query';
 import { Product } from '../../../types/Product';
 
 type ProductDetailsProps = {
   onProductDetail: (id: number) => void;
 };
 
+const fetchProducts = () => {
+  return axios.get(`http://localhost:3333/products`).then((response) => {
+    return response.data;
+  });
+};
+
 function ProductList({ onProductDetail }: ProductDetailsProps) {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const fetchProducts = () => {
-    return axios.get(`http://localhost:3333/products`).then((response) => {
-      return response.data;
-    });
-  };
-
-  useEffect(() => {
-    setIsLoading(true);
+  const { data: products, isLoading } = useQuery<Product[]>(['products'], () =>
     fetchProducts()
-      .then((data) => {
-        setProducts(data);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, []);
+  );
+
+  // const [products, setProducts] = useState<Product[]>([]);
+  // const [isLoading, setIsLoading] = useState(false);
+
+  // useEffect(() => {
+  //   setIsLoading(true);
+  //   fetchProducts()
+  //     .then((data) => {
+  //       setProducts(data);
+  //     })
+  //     .finally(() => {
+  //       setIsLoading(false);
+  //     });
+  // }, []);
 
   if (isLoading || !products) {
     return <div>Loading...</div>;
